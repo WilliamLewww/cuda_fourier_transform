@@ -7,9 +7,14 @@ void fourierTransform(float* dst, float* src, int width, int height) {
 
   if (idx >= width || idy >= height) { return; }
 
-  dst[idy * width + idx] = src[idy * width + idx];
+  float sum = 0.0;
+  for (int x = 0; x < width; x++) {
+    for (int y = 0; y < height; y++) {
+      sum += src[y * width + x] * expf(-idy * 2.0 * M_PI * (((idx * x) / width) + ((idy * y) / height)));
+    }
+  }
 
-  // f(i,j) * exp(-j * 2 * M_PI * (((x * i) / width) + ((y * j) / height))
+  dst[idy * width + idx] = sum;
 }
 
 extern "C" void fourierTransformWrapper(unsigned char* dst, unsigned char* src, int width, int height, int channels) {
