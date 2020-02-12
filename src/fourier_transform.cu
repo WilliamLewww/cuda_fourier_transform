@@ -4,6 +4,8 @@ void fourierTransform(unsigned char* dst, unsigned char* src, int width, int hei
   int idy = (blockIdx.y * blockDim.y) + threadIdx.y;
 
   if (idx >= width || idy >= height) { return; }
+
+  // f(i,j) * exp(-j * 2 * M_PI * (((x * i) / width) + ((y * j) / height))
 }
 
 extern "C" void fourierTransformWrapper(unsigned char* dst, unsigned char* src, int width, int height) {
