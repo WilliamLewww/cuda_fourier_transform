@@ -1,27 +1,47 @@
+#include <stdio.h>
+
 __global__
-void fourierTransform(unsigned char* dst, unsigned char* src, int width, int height) {
+void fourierTransform(float* dst, float* src, int width, int height) {
   int idx = (blockIdx.x * blockDim.x) + threadIdx.x;
   int idy = (blockIdx.y * blockDim.y) + threadIdx.y;
 
   if (idx >= width || idy >= height) { return; }
 
+  dst[idy * width + idx] = src[idy * width + idx];
+
   // f(i,j) * exp(-j * 2 * M_PI * (((x * i) / width) + ((y * j) / height))
 }
 
-extern "C" void fourierTransformWrapper(unsigned char* dst, unsigned char* src, int width, int height) {
+extern "C" void fourierTransformWrapper(unsigned char* dst, unsigned char* src, int width, int height, int channels) {
   dim3 block(32, 32);
   dim3 grid((width + block.x - 1) / block.x, (height + block.y - 1) / block.y);
 
-  unsigned char *d_dst, *d_src;
-  cudaMalloc(&d_dst, width*height*sizeof(unsigned char));
-  cudaMalloc(&d_src, width*height*sizeof(unsigned char));
-  cudaMemcpy(d_src, src, width*height*sizeof(unsigned char), cudaMemcpyHostToDevice);
+  float *h_dst = (float*)malloc(width*height*sizeof(float));
+  float *h_src = (float*)malloc(width*height*sizeof(float));
+
+  for (int x = 0; x < width * height * channels; x += channels) {
+    h_src[x / channels] = src[x];
+  }
+
+  float *d_dst, *d_src;
+  cudaMalloc(&d_dst, width*height*sizeof(float));
+  cudaMalloc(&d_src, width*height*sizeof(float));
+  cudaMemcpy(d_src, h_src, width*height*sizeof(float), cudaMemcpyHostToDevice);
 
   fourierTransform<<<block, grid>>>(d_dst, d_src, width, height);
   cudaDeviceSynchronize();
 
-  cudaMemcpy(dst, d_dst, width*height*sizeof(unsigned char), cudaMemcpyDeviceToHost);
+  cudaMemcpy(h_dst, d_dst, width*height*sizeof(float), cudaMemcpyDeviceToHost);
+
+  for (int x = 0; x < width * height; x++) {
+    dst[x * channels] = h_dst[x] * 255;
+    dst[x * channels + 1] = h_dst[x] * 255;
+    dst[x * channels + 2] = h_dst[x] * 255;
+    dst[x * channels + 3] = h_dst[x] * 255;
+  }
 
   cudaFree(d_dst);
   cudaFree(d_src);
+  free(h_dst);
+  free(h_src);
 }
