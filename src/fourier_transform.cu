@@ -1,16 +1,17 @@
 #include <stdio.h>
+#include <cmath>
 
 __global__
 void fourierTransform(float* dst, float* src, int width, int height) {
-  int idx = (blockIdx.x * blockDim.x) + threadIdx.x;
-  int idy = (blockIdx.y * blockDim.y) + threadIdx.y;
+  int idx = blockIdx.x * blockDim.x + threadIdx.x;
+  int idy = blockIdx.y * blockDim.y + threadIdx.y;
 
   if (idx >= width || idy >= height) { return; }
 
   float sum = 0.0;
   for (int x = 0; x < width; x++) {
     for (int y = 0; y < height; y++) {
-      sum += src[y * width + x] * expf(-idy * 2.0 * M_PI * (((idx * x) / width) + ((idy * y) / height)));
+      sum += src[y * width + x] * sinf(-2.0 * M_PI * (((idx * x) / width) + ((idy * y) / height)));
     }
   }
 
@@ -38,11 +39,21 @@ extern "C" void fourierTransformWrapper(unsigned char* dst, unsigned char* src, 
 
   cudaMemcpy(h_dst, d_dst, width*height*sizeof(float), cudaMemcpyDeviceToHost);
 
+  float max = 0.0;
   for (int x = 0; x < width * height; x++) {
-    dst[x * channels] = h_dst[x] * 255;
-    dst[x * channels + 1] = h_dst[x] * 255;
-    dst[x * channels + 2] = h_dst[x] * 255;
-    dst[x * channels + 3] = h_dst[x] * 255;
+    if (h_dst[x] > max) {
+      max = h_dst[x];
+    }
+  }
+
+  float c = 255.0 / log(1 + fabs(max));
+  for (int x = 0; x < width * height; x++) {
+    h_dst[x] = c * log(1 + fabs(h_dst[x]));
+
+    dst[x * channels] = h_dst[x];
+    dst[x * channels + 1] = h_dst[x];
+    dst[x * channels + 2] = h_dst[x];
+    dst[x * channels + 3] = 255;
   }
 
   cudaFree(d_dst);
