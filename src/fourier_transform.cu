@@ -10,8 +10,8 @@ void fourierTransform(float* dst, float* src, int width, int height) {
 
   float real = 0.0;
   float imaginary = 0.0;
-  for (int x = 0; x < width; x++) {
-    for (int y = 0; y < height; y++) {
+  for (int y = 0; y < height; y++) {
+    for (int x = 0; x < width; x++) {
       real += src[y * width + x] * sinf((-2.0 * M_PI * idx * x / width) + (-2.0 * M_PI * idy * y / height));
       imaginary += src[y * width + x] * cosf((-2.0 * M_PI * idx * x / width) + (-2.0 * M_PI * idy * y / height));
     }
