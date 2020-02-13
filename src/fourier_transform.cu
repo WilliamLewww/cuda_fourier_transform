@@ -11,18 +11,6 @@ void circularShift(float* dst, float* src, int width, int height, int shiftX, in
   dst[idy * width + idx] = src[(((idy - shiftY) % height + height) % height) * width + (((idx - shiftX) % width + width) % width)];
 }
 
-// 0 1 2 3 4
-// 3 4 0 1 2
-
-// len = 5
-// shift = 2
-
-// [0] = [3] x - 2 mod 5
-// [1] = [4] x - 2 mod 5
-// [2] = [0] x - 2 mod 5
-// [3] = [1] x - 2 mod 5
-// [4] = [2] x - 2 mod 5
-
 __global__
 void fourierTransform(float* dst, float* src, int width, int height) {
   int idx = blockIdx.x * blockDim.x + threadIdx.x;
