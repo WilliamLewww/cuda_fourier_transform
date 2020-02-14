@@ -3,6 +3,7 @@
 #define STB_IMAGE_RESIZE_IMPLEMENTATION
 
 #include <stdio.h>
+#include <chrono>
 
 #include "stb_image.h"
 #include "stb_image_write.h"
@@ -22,9 +23,18 @@ int main(int argn, char** argv) {
   stbir_resize_uint8(image, width, height, 0, imageScaled, fourierWidth, fourierHeight, 0, channels);
 
   unsigned char* imageFourier = (unsigned char*)malloc(fourierWidth*fourierHeight*channels*sizeof(unsigned char));
-  fourierTransformWrapper(imageFourier, imageScaled, fourierWidth, fourierHeight, channels);
 
+  printf("%s %s %sx%s", argv[1], argv[2], argv[3], argv[4]);
+  
+  std::chrono::high_resolution_clock::time_point start = std::chrono::high_resolution_clock::now();
+  fourierTransformWrapper(imageFourier, imageScaled, fourierWidth, fourierHeight, channels);
+  int64_t timeDifference = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - start).count();
+  printf(" || %s %fs", "kernel execution:", float(timeDifference) / 1000000.0);
+
+  start = std::chrono::high_resolution_clock::now();
   stbi_write_png(argv[2], fourierWidth, fourierHeight, channels, imageFourier, fourierWidth*channels*sizeof(unsigned char));
+  timeDifference = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - start).count();
+  printf(" || %s %fs\n", "file save:", float(timeDifference) / 1000000.0);
 
   free(imageFourier);
   free(imageScaled);
