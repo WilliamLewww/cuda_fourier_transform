@@ -21,7 +21,7 @@ int main(int argn, char** argv) {
 
   stbir_resize_uint8(image, width, height, 0, imageScaled, fourierWidth, fourierHeight, 0, channels);
 
-  unsigned char* imageFourier = (unsigned char*)malloc(fourierWidth*fourierHeight*4*sizeof(unsigned char));
+  unsigned char* imageFourier = (unsigned char*)malloc(fourierWidth*fourierHeight*channels*sizeof(unsigned char));
   fourierTransformWrapper(imageFourier, imageScaled, fourierWidth, fourierHeight, channels);
 
   stbi_write_png(argv[2], fourierWidth, fourierHeight, channels, imageFourier, fourierWidth*channels*sizeof(unsigned char));
