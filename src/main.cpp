@@ -13,7 +13,7 @@ extern "C" {
 }
 
 int main(int argn, char** argv) {
-  int fourierWidth = 500, fourierHeight = 500, channels = 4;
+  int fourierWidth = atoi(argv[3]), fourierHeight = atoi(argv[4]), channels = 4;
 
   int width, height, comp;
   unsigned char* image = stbi_load(argv[1], &width, &height, &comp, STBI_rgb_alpha);

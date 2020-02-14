@@ -34,7 +34,6 @@ extern "C" void fourierTransformWrapper(unsigned char* dst, unsigned char* src, 
   dim3 block(32, 32);
   dim3 grid((width + block.x - 1) / block.x, (height + block.y - 1) / block.y);
 
-  float *h_circularFourierImage = (float*)malloc(width*height*sizeof(float));
   float *h_image = (float*)malloc(width*height*sizeof(float));
 
   for (int x = 0; x < width * height * channels; x += channels) {
@@ -53,6 +52,7 @@ extern "C" void fourierTransformWrapper(unsigned char* dst, unsigned char* src, 
   cudaMalloc(&d_circularFourierImage, width*height*sizeof(float));
   circularShift<<<block, grid>>>(d_circularFourierImage, d_fourierImage, width, height, width / 2, height / 2);
 
+  float *h_circularFourierImage = (float*)malloc(width*height*sizeof(float));
   cudaMemcpy(h_circularFourierImage, d_circularFourierImage, width*height*sizeof(float), cudaMemcpyDeviceToHost);
 
   float max = 0.0;
