@@ -9,7 +9,7 @@
 #include "stb_image_resize.h"
 
 extern "C" {
-  void fourierTransformWrapper(unsigned char* dst, unsigned char* src, int width, int height, int channels);
+  void fourierTransformWrapper(unsigned char* dst, unsigned char* src);
 }
 
 int main(int argn, char** argv) {
@@ -22,7 +22,7 @@ int main(int argn, char** argv) {
   stbir_resize_uint8(image, width, height, 0, imageScaled, fourierWidth, fourierHeight, 0, channels);
 
   unsigned char* imageFourier = (unsigned char*)malloc(fourierWidth*fourierHeight*4*sizeof(unsigned char));
-  fourierTransformWrapper(imageFourier, imageScaled, fourierWidth, fourierHeight, channels);
+  fourierTransformWrapper(imageFourier, imageScaled);
 
   stbi_write_png(argv[2], fourierWidth, fourierHeight, channels, imageFourier, fourierWidth*channels*sizeof(unsigned char));
 
