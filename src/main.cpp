@@ -26,6 +26,7 @@ int main(int argn, char** argv) {
 
   stbi_write_png(argv[2], fourierWidth, fourierHeight, channels, imageFourier, fourierWidth*channels*sizeof(unsigned char));
 
+  free(imageFourier);
   free(imageScaled);
   stbi_image_free(image);
   return 0;
