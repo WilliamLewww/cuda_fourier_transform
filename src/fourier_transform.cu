@@ -37,7 +37,7 @@ extern "C" void fourierTransformWrapper(unsigned char* dst, unsigned char* src, 
   float *h_image = (float*)malloc(width*height*sizeof(float));
 
   for (int x = 0; x < width * height * channels; x += channels) {
-    h_image[x / channels] = src[x] / 255.0;
+    h_image[x / channels] = ((src[x] * 0.30) + (src[x + 1] * 0.59) + (src[x + 2] * 0.11)) / 255.0;
   }
 
   float *d_fourierImage, *d_image;
