@@ -19,7 +19,7 @@ CUDA_FLAGS=--gpu-architecture=sm_30
 LINKER_ARGUMENTS=
 
 EXEC=fourier_transform.out
-EXEC_ARGS=res/pigeon.png bin/output.png 500 500
+EXEC_ARGS=res/house bin/output 500 500
 
 all: clean $(EXEC) run
 

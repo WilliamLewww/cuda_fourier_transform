@@ -2,8 +2,11 @@
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #define STB_IMAGE_RESIZE_IMPLEMENTATION
 
-#include <stdio.h>
 #include <chrono>
+#include <vector>
+#include <stdio.h>
+#include <sys/stat.h>
+#include <dirent.h>
 
 #include "stb/stb_image.h"
 #include "stb/stb_image_write.h"
@@ -39,6 +42,38 @@ void fourierTransformFile(char* inputFile, char* outputFile, int outputWidth, in
   stbi_image_free(image);
 }
 
+void fourierTransformDirectory(char* inputDirectory, char* outputDirectory, int outputWidth, int outputHeight, int channels) {
+  std::vector<char*> fileList;
+
+  DIR* directory;
+  struct dirent* entry;
+
+  if ((directory = opendir(inputDirectory)) != NULL) {
+    while ((entry = readdir(directory)) != NULL) {
+      char* fileExtension = &entry->d_name[strlen(entry->d_name) - 4];
+      if (strcmp(fileExtension, ".jpg") == 0 || strcmp(fileExtension, ".png") == 0) {
+        fileList.push_back(entry->d_name);
+      }
+    }
+    closedir(directory);
+  }
+
+  for (int x = 0; x < fileList.size(); x++) {
+    char* inputFile = (char*)malloc(strlen(inputDirectory) + strlen(fileList[x]) + 2);
+    strcat(strcat(strcpy(inputFile, inputDirectory), "/"), fileList[x]);
+
+    char* outputFile = (char*)malloc(strlen(outputDirectory) + strlen(fileList[x]) + 2);
+    strcat(strcat(strcpy(outputFile, outputDirectory), "/"), fileList[x]);
+
+    int width, height, comp;
+    unsigned char* image = stbi_load(inputFile, &width, &height, &comp, channels);
+
+    stbi_image_free(image);
+    free(inputFile);
+    free(outputFile);
+  }
+}
+
 int main(int argn, char** argv) {
   if (argn == 5) {
     int channels = 0;
@@ -51,7 +86,8 @@ int main(int argn, char** argv) {
       fourierTransformFile(argv[1], argv[2], atoi(argv[3]), atoi(argv[4]), channels);
     }
     else {
-      
+      mkdir(argv[2], S_IRWXU | S_IRWXG | S_IRWXO);
+      fourierTransformDirectory(argv[1], argv[2], atoi(argv[3]), atoi(argv[4]), channels);
     }
   }
 
