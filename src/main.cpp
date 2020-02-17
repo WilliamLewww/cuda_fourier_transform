@@ -14,10 +14,16 @@ extern "C" {
 }
 
 int main(int argn, char** argv) {
-  int fourierWidth = atoi(argv[3]), fourierHeight = atoi(argv[4]), channels = 4;
+  int fourierWidth = atoi(argv[3]); 
+  int fourierHeight = atoi(argv[4]);
+  int channels;
+
+  char* fileExtension = &argv[1][strlen(argv[1]) - 4];
+  if (strcmp(fileExtension, ".jpg") == 0) { channels = 3; }
+  if (strcmp(fileExtension, ".png") == 0) { channels = 4; }
 
   int width, height, comp;
-  unsigned char* image = stbi_load(argv[1], &width, &height, &comp, STBI_rgb_alpha);
+  unsigned char* image = stbi_load(argv[1], &width, &height, &comp, channels);
   unsigned char* imageScaled = (unsigned char*)malloc(fourierWidth*fourierHeight*channels*sizeof(unsigned char));
 
   stbir_resize_uint8(image, width, height, 0, imageScaled, fourierWidth, fourierHeight, 0, channels);

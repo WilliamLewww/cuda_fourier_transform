@@ -69,7 +69,10 @@ extern "C" void fourierTransformWrapper(unsigned char* dst, unsigned char* src, 
     dst[x * channels] = h_circularFourierImage[x];
     dst[x * channels + 1] = h_circularFourierImage[x];
     dst[x * channels + 2] = h_circularFourierImage[x];
-    dst[x * channels + 3] = 255;
+
+    if (channels == 4) {
+      dst[x * channels + 3] = 255;
+    }
   }
 
   cudaFree(d_circularFourierImage);
