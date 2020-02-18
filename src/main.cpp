@@ -52,7 +52,9 @@ void fourierTransformDirectory(char* inputDirectory, char* outputDirectory, int 
     while ((entry = readdir(directory)) != NULL) {
       char* fileExtension = &entry->d_name[strlen(entry->d_name) - 4];
       if (strcmp(fileExtension, ".jpg") == 0 || strcmp(fileExtension, ".png") == 0) {
-        fileList.push_back(entry->d_name);
+        char* filename = (char*)malloc(strlen(entry->d_name) + 1);
+        strcpy(filename, entry->d_name);
+        fileList.push_back(filename);
       }
     }
     closedir(directory);
@@ -67,10 +69,11 @@ void fourierTransformDirectory(char* inputDirectory, char* outputDirectory, int 
 
     int width, height, comp;
     unsigned char* image = stbi_load(inputFile, &width, &height, &comp, channels);
-
+    
     stbi_image_free(image);
     free(inputFile);
     free(outputFile);
+    free(fileList[x]);
   }
 }
 
