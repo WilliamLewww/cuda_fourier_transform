@@ -4,6 +4,7 @@ CURRENT_PATH=$(shell pwd)
 
 BIN_PATH=$(CURRENT_PATH)/bin
 BUILD_PATH=$(CURRENT_PATH)/build
+DUMP_PATH=$(CURRENT_PATH)/dump
 SRC_PATH=$(CURRENT_PATH)/src
 
 CC=g++
@@ -19,7 +20,7 @@ CUDA_FLAGS=--gpu-architecture=sm_30
 LINKER_ARGUMENTS=
 
 EXEC=fourier_transform.out
-EXEC_ARGS=res/house dump/output 500 500
+EXEC_ARGS=res/house dump/house 500 500
 
 all: clean $(EXEC) run
 
@@ -58,4 +59,5 @@ memory-check:
 
 clean:
 	rm -rf $(BUILD_PATH)/*
-	mkdir -p build
+	mkdir -p $(BUILD_PATH)
+	mkdir -p $(DUMP_PATH)
