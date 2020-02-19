@@ -78,14 +78,14 @@ void fourierTransformDirectory(char* inputDirectory, char* outputDirectory, int 
     free(inputFile);
   }
 
-  for (int x = 0; x < fileList.size(); x++) {
-    char* outputFile = (char*)malloc(strlen(outputDirectory) + strlen(fileList[x]) + 2);
-    strcat(strcat(strcpy(outputFile, outputDirectory), "/"), fileList[x]);
+  // for (int x = 0; x < fileList.size(); x++) {
+  //   char* outputFile = (char*)malloc(strlen(outputDirectory) + strlen(fileList[x]) + 2);
+  //   strcat(strcat(strcpy(outputFile, outputDirectory), "/"), fileList[x]);
 
-    stbi_write_png(outputFile, outputWidth, outputHeight, channels, &imageArray[outputWidth * outputHeight * channels * x], outputWidth*channels*sizeof(unsigned char));
+  //   stbi_write_png(outputFile, outputWidth, outputHeight, channels, &imageArray[outputWidth * outputHeight * channels * x], outputWidth*channels*sizeof(unsigned char));
   
-    free(outputFile);
-  }
+  //   free(outputFile);
+  // }
 
   for (int x = 0; x < fileList.size(); x++) {
     delete fileList[x];

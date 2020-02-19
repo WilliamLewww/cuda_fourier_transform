@@ -81,3 +81,17 @@ extern "C" void fourierTransformWrapper(unsigned char* dst, unsigned char* src, 
   free(h_circularFourierImage);
   free(h_image);
 }
+
+__global__
+void fourierTransformBatch(float* dst, float* src, int width, int height, int depth) {
+  int idx = blockIdx.x * blockDim.x + threadIdx.x;
+  int idy = blockIdx.y * blockDim.y + threadIdx.y;
+  int idz = blockIdx.z * blockDim.z + threadIdx.z;
+
+  if (idx >= width || idy >= height || idz >= depth) { return; }
+}
+
+extern "C" void fourierTransformBatchWrapper(unsigned char* dst, unsigned char* src, int width, int height, int depth, int channels) {
+  dim3 block(32, 32, 32);
+  dim3 grid((width + block.x - 1) / block.x, (height + block.y - 1) / block.y, (depth + block.z - 1) / block.z);
+}
