@@ -14,6 +14,7 @@
 
 extern "C" {
   void fourierTransformWrapper(unsigned char* dst, unsigned char* src, int width, int height, int channels);
+  void fourierTransformBatchWrapper(unsigned char* dst, unsigned char* src, int width, int height, int depth, int channels);
 }
 
 void fourierTransformFile(char* inputFile, char* outputFile, int outputWidth, int outputHeight, int channels) {
@@ -60,7 +61,7 @@ void fourierTransformDirectory(char* inputDirectory, char* outputDirectory, int 
     closedir(directory);
   }
 
-  unsigned char* imageArray = (unsigned char*)malloc(outputWidth*outputHeight*channels*fileList.size()*sizeof(unsigned char));
+  unsigned char* imageScaledArray = (unsigned char*)malloc(outputWidth*outputHeight*channels*fileList.size()*sizeof(unsigned char));
 
   for (int x = 0; x < fileList.size(); x++) {
     char* inputFile = (char*)malloc(strlen(inputDirectory) + strlen(fileList[x]) + 2);
@@ -71,26 +72,39 @@ void fourierTransformDirectory(char* inputDirectory, char* outputDirectory, int 
     unsigned char* imageScaled = (unsigned char*)malloc(outputWidth*outputHeight*channels*sizeof(unsigned char));
     stbir_resize_uint8(image, width, height, 0, imageScaled, outputWidth, outputHeight, 0, channels);
 
-    memcpy(imageArray + (outputWidth * outputHeight * channels * x), imageScaled, outputWidth*outputHeight*channels*sizeof(unsigned char));
+    memcpy(imageScaledArray + (outputWidth * outputHeight * channels * x), imageScaled, outputWidth*outputHeight*channels*sizeof(unsigned char));
 
     free(image);
     free(imageScaled);
     free(inputFile);
   }
 
-  // for (int x = 0; x < fileList.size(); x++) {
-  //   char* outputFile = (char*)malloc(strlen(outputDirectory) + strlen(fileList[x]) + 2);
-  //   strcat(strcat(strcpy(outputFile, outputDirectory), "/"), fileList[x]);
+  unsigned char* imageArrayFourier = (unsigned char*)malloc(outputWidth*outputHeight*channels*fileList.size()*sizeof(unsigned char));
 
-  //   stbi_write_png(outputFile, outputWidth, outputHeight, channels, &imageArray[outputWidth * outputHeight * channels * x], outputWidth*channels*sizeof(unsigned char));
+  printf("%s %s %dx%d", inputDirectory, outputDirectory, outputWidth, outputHeight);
+
+  std::chrono::high_resolution_clock::time_point start = std::chrono::high_resolution_clock::now();
+  fourierTransformBatchWrapper(imageArrayFourier, imageScaledArray, outputWidth, outputHeight, fileList.size(), channels);
+  int64_t timeDifference = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - start).count();
+  printf(" || %s %fs", "kernel execution:", float(timeDifference) / 1000000.0);
+
+  start = std::chrono::high_resolution_clock::now();
+  for (int x = 0; x < fileList.size(); x++) {
+    char* outputFile = (char*)malloc(strlen(outputDirectory) + strlen(fileList[x]) + 2);
+    strcat(strcat(strcpy(outputFile, outputDirectory), "/"), fileList[x]);
+
+    stbi_write_png(outputFile, outputWidth, outputHeight, channels, &imageArrayFourier[outputWidth * outputHeight * channels * x], outputWidth*channels*sizeof(unsigned char));
   
-  //   free(outputFile);
-  // }
+    free(outputFile);
+  }
+  timeDifference = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - start).count();
+  printf(" || %s %fs\n", "file save:", float(timeDifference) / 1000000.0);
 
   for (int x = 0; x < fileList.size(); x++) {
     delete fileList[x];
   }
-  free(imageArray);
+  free(imageArrayFourier);
+  free(imageScaledArray);
 }
 
 int main(int argn, char** argv) {
