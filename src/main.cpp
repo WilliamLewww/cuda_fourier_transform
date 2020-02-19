@@ -5,8 +5,8 @@
 #include <chrono>
 #include <vector>
 #include <stdio.h>
-#include <sys/stat.h>
 #include <dirent.h>
+#include <sys/stat.h>
 
 #include "stb/stb_image.h"
 #include "stb/stb_image_write.h"
@@ -101,7 +101,7 @@ void fourierTransformDirectory(char* inputDirectory, char* outputDirectory, int 
   printf(" || %s %fs\n", "file save:", float(timeDifference) / 1000000.0);
 
   for (int x = 0; x < fileList.size(); x++) {
-    delete fileList[x];
+    free(fileList[x]);
   }
   free(imageArrayFourier);
   free(imageScaledArray);
