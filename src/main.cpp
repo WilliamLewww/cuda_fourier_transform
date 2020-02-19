@@ -60,21 +60,37 @@ void fourierTransformDirectory(char* inputDirectory, char* outputDirectory, int 
     closedir(directory);
   }
 
+  unsigned char* imageArray = (unsigned char*)malloc(outputWidth*outputHeight*channels*fileList.size()*sizeof(unsigned char));
+
   for (int x = 0; x < fileList.size(); x++) {
     char* inputFile = (char*)malloc(strlen(inputDirectory) + strlen(fileList[x]) + 2);
     strcat(strcat(strcpy(inputFile, inputDirectory), "/"), fileList[x]);
 
+    int width, height, comp;
+    unsigned char* image = stbi_load(inputFile, &width, &height, &comp, channels);    
+    unsigned char* imageScaled = (unsigned char*)malloc(outputWidth*outputHeight*channels*sizeof(unsigned char));
+    stbir_resize_uint8(image, width, height, 0, imageScaled, outputWidth, outputHeight, 0, channels);
+
+    memcpy(imageArray + (outputWidth * outputHeight * channels * x), imageScaled, outputWidth*outputHeight*channels*sizeof(unsigned char));
+
+    free(image);
+    free(imageScaled);
+    free(inputFile);
+  }
+
+  for (int x = 0; x < fileList.size(); x++) {
     char* outputFile = (char*)malloc(strlen(outputDirectory) + strlen(fileList[x]) + 2);
     strcat(strcat(strcpy(outputFile, outputDirectory), "/"), fileList[x]);
 
-    int width, height, comp;
-    unsigned char* image = stbi_load(inputFile, &width, &height, &comp, channels);
-    
-    stbi_image_free(image);
-    free(inputFile);
+    stbi_write_png(outputFile, outputWidth, outputHeight, channels, &imageArray[outputWidth * outputHeight * channels * x], outputWidth*channels*sizeof(unsigned char));
+  
     free(outputFile);
-    free(fileList[x]);
   }
+
+  for (int x = 0; x < fileList.size(); x++) {
+    delete fileList[x];
+  }
+  free(imageArray);
 }
 
 int main(int argn, char** argv) {
@@ -90,7 +106,7 @@ int main(int argn, char** argv) {
     }
     else {
       mkdir(argv[2], S_IRWXU | S_IRWXG | S_IRWXO);
-      fourierTransformDirectory(argv[1], argv[2], atoi(argv[3]), atoi(argv[4]), channels);
+      fourierTransformDirectory(argv[1], argv[2], atoi(argv[3]), atoi(argv[4]), 4);
     }
   }
 
