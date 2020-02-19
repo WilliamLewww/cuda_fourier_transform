@@ -43,7 +43,8 @@ void fourierTransformFile(char* inputFile, char* outputFile, int outputWidth, in
   stbi_image_free(image);
 }
 
-void fourierTransformDirectory(char* inputDirectory, char* outputDirectory, int outputWidth, int outputHeight, int channels) {
+void fourierTransformDirectory(char* inputDirectory, char* outputDirectory, int outputWidth, int outputHeight) {
+  int channels = 0;
   std::vector<char*> fileList;
 
   DIR* directory;
@@ -57,6 +58,9 @@ void fourierTransformDirectory(char* inputDirectory, char* outputDirectory, int 
         strcpy(filename, entry->d_name);
         fileList.push_back(filename);
       }
+
+      if (strcmp(fileExtension, ".jpg") == 0) { channels = 3; }
+      if (strcmp(fileExtension, ".png") == 0) { channels = 4; }
     }
     closedir(directory);
   }
@@ -108,19 +112,25 @@ void fourierTransformDirectory(char* inputDirectory, char* outputDirectory, int 
 }
 
 int main(int argn, char** argv) {
-  if (argn == 5) {
-    int channels = 0;
+  if (argn == 3 || argn == 5) {
+    int outputWidth = 500;
+    int outputHeight = 500;
+    if (argn == 5) {
+      outputWidth = atoi(argv[3]);
+      outputHeight = atoi(argv[4]);
+    }
 
+    int channels = 0;
     char* fileExtension = &argv[1][strlen(argv[1]) - 4];
     if (strcmp(fileExtension, ".jpg") == 0) { channels = 3; }
     if (strcmp(fileExtension, ".png") == 0) { channels = 4; }
 
     if (channels != 0) {
-      fourierTransformFile(argv[1], argv[2], atoi(argv[3]), atoi(argv[4]), channels);
+      fourierTransformFile(argv[1], argv[2], outputWidth, outputHeight, channels);
     }
     else {
       mkdir(argv[2], S_IRWXU | S_IRWXG | S_IRWXO);
-      fourierTransformDirectory(argv[1], argv[2], atoi(argv[3]), atoi(argv[4]), 4);
+      fourierTransformDirectory(argv[1], argv[2], outputWidth, outputHeight);
     }
   }
 

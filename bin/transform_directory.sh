@@ -2,7 +2,7 @@
 
 if [ $# -le 1 ]
 then
-	echo "Usage: ./transform_directory INPUT_DIRECTORY... OUTPUT_DIRECTORY..."
+	echo "Usage: ./transform_directory INPUT_DIRECTORY OUTPUT_DIRECTORY"
 	echo "Fourier transform a directory of images"
 	echo ""
 else
