@@ -14,8 +14,8 @@
 #include "stb/stb_image_resize.h"
 
 extern "C" {
-  void fourierTransformWrapper(unsigned char* dst, unsigned char* src, int width, int height, int channels);
-  void fourierTransformBatchWrapper(unsigned char* dst, unsigned char* src, int width, int height, int depth, int channels);
+  void discreteFourierTransformWrapper(unsigned char* dst, unsigned char* src, int width, int height, int channels);
+  void discreteFourierTransformBatchWrapper(unsigned char* dst, unsigned char* src, int width, int height, int depth, int channels);
 }
 
 void fourierTransformFile(std::string inputFile, std::string outputFile, int outputWidth, int outputHeight, int channels) {
@@ -30,7 +30,7 @@ void fourierTransformFile(std::string inputFile, std::string outputFile, int out
   printf("%s %s %dx%d", inputFile.c_str(), outputFile.c_str(), outputWidth, outputHeight);
   
   std::chrono::high_resolution_clock::time_point start = std::chrono::high_resolution_clock::now();
-  fourierTransformWrapper(imageFourier, imageScaled, outputWidth, outputHeight, channels);
+  discreteFourierTransformWrapper(imageFourier, imageScaled, outputWidth, outputHeight, channels);
   int64_t timeDifference = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - start).count();
   printf(" || %s %fs", "kernel execution:", float(timeDifference) / 1000000.0);
 
@@ -87,7 +87,7 @@ void fourierTransformDirectory(std::string inputDirectory, std::string outputDir
   printf("%s %s %dx%d", inputDirectory.c_str(), outputDirectory.c_str(), outputWidth, outputHeight);
 
   std::chrono::high_resolution_clock::time_point start = std::chrono::high_resolution_clock::now();
-  fourierTransformBatchWrapper(imageArrayFourier, imageScaledArray, outputWidth, outputHeight, fileList.size(), channels);
+  discreteFourierTransformBatchWrapper(imageArrayFourier, imageScaledArray, outputWidth, outputHeight, fileList.size(), channels);
   int64_t timeDifference = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - start).count();
   printf(" || %s %fs", "kernel execution:", float(timeDifference) / 1000000.0);
 

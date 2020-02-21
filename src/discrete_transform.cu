@@ -12,7 +12,7 @@ void circularShift(float* dst, float* src, int width, int height, int shiftX, in
 }
 
 __global__
-void fourierTransform(float* dst, float* src, int width, int height) {
+void discreteFourierTransform(float* dst, float* src, int width, int height) {
   int idx = blockIdx.x * blockDim.x + threadIdx.x;
   int idy = blockIdx.y * blockDim.y + threadIdx.y;
 
@@ -30,7 +30,7 @@ void fourierTransform(float* dst, float* src, int width, int height) {
   dst[idy * width + idx] = sqrtf((real * real) + (imaginary * imaginary));
 }
 
-extern "C" void fourierTransformWrapper(unsigned char* dst, unsigned char* src, int width, int height, int channels) {
+extern "C" void discreteFourierTransformWrapper(unsigned char* dst, unsigned char* src, int width, int height, int channels) {
   dim3 block(32, 32);
   dim3 grid((width + block.x - 1) / block.x, (height + block.y - 1) / block.y);
 
@@ -45,7 +45,7 @@ extern "C" void fourierTransformWrapper(unsigned char* dst, unsigned char* src, 
   cudaMalloc(&d_image, width*height*sizeof(float));
   cudaMemcpy(d_image, h_image, width*height*sizeof(float), cudaMemcpyHostToDevice);
 
-  fourierTransform<<<block, grid>>>(d_fourierImage, d_image, width, height);
+  discreteFourierTransform<<<block, grid>>>(d_fourierImage, d_image, width, height);
   cudaDeviceSynchronize();
 
   float *d_circularFourierImage;
@@ -94,7 +94,7 @@ void circularShiftBatch(float* dst, float* src, int width, int height, int depth
 }
 
 __global__
-void fourierTransformBatch(float* dst, float* src, int width, int height, int depth) {
+void discreteFourierTransformBatch(float* dst, float* src, int width, int height, int depth) {
   int idx = blockIdx.x * blockDim.x + threadIdx.x;
   int idy = blockIdx.y * blockDim.y + threadIdx.y;
   int idz = blockIdx.z * blockDim.z + threadIdx.z;
@@ -113,7 +113,7 @@ void fourierTransformBatch(float* dst, float* src, int width, int height, int de
   dst[idz * width * height + idy * width + idx] = sqrtf((real * real) + (imaginary * imaginary));
 }
 
-extern "C" void fourierTransformBatchWrapper(unsigned char* dst, unsigned char* src, int width, int height, int depth, int channels) {
+extern "C" void discreteFourierTransformBatchWrapper(unsigned char* dst, unsigned char* src, int width, int height, int depth, int channels) {
   dim3 block(32, 32, 32);
   dim3 grid((width + block.x - 1) / block.x, (height + block.y - 1) / block.y, (depth + block.z - 1) / block.z);
 
@@ -128,7 +128,7 @@ extern "C" void fourierTransformBatchWrapper(unsigned char* dst, unsigned char* 
   cudaMalloc(&d_image, width*height*depth*sizeof(float));
   cudaMemcpy(d_image, h_image, width*height*depth*sizeof(float), cudaMemcpyHostToDevice);
 
-  fourierTransformBatch<<<block, grid>>>(d_fourierImage, d_image, width, height, depth);
+  discreteFourierTransformBatch<<<block, grid>>>(d_fourierImage, d_image, width, height, depth);
   cudaDeviceSynchronize();
 
   float *d_circularFourierImage;
