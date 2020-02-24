@@ -14,7 +14,7 @@
 #include "stb/stb_image_resize.h"
 
 extern "C" {
-  void discreteFourierTransformWrapper(unsigned char* dst, unsigned char* src, int width, int height, int channels);
+  void discreteFourierTransformWrapper(float* dst, float* src, int width, int height);
   void discreteFourierTransformBatchWrapper(unsigned char* dst, unsigned char* src, int width, int height, int depth, int channels);
 }
 
@@ -22,26 +22,17 @@ void fourierTransformFile(std::string inputFile, std::string outputFile, int out
   int width, height, comp;
   unsigned char* image = stbi_load(inputFile.c_str(), &width, &height, &comp, channels);
   unsigned char* imageScaled = (unsigned char*)malloc(outputWidth*outputHeight*channels*sizeof(unsigned char));
-
   stbir_resize_uint8(image, width, height, 0, imageScaled, outputWidth, outputHeight, 0, channels);
 
-  unsigned char* imageFourier = (unsigned char*)malloc(outputWidth*outputHeight*channels*sizeof(unsigned char));
+  float* imageScaledGray = (float*)malloc(outputWidth*outputHeight*sizeof(float));
+  for (int x = 0; x < width * height * channels; x += channels) {
+    imageScaledGray[x / channels] = ((imageScaled[x] * 0.30) + (imageScaled[x + 1] * 0.59) + (imageScaled[x + 2] * 0.11)) / 255.0;
+  }
 
-  printf("%s %s %dx%d", inputFile.c_str(), outputFile.c_str(), outputWidth, outputHeight);
-  
-  std::chrono::high_resolution_clock::time_point start = std::chrono::high_resolution_clock::now();
-  discreteFourierTransformWrapper(imageFourier, imageScaled, outputWidth, outputHeight, channels);
-  int64_t timeDifference = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - start).count();
-  printf(" || %s %fs", "kernel execution:", float(timeDifference) / 1000000.0);
+  float* imageFourier = (float*)malloc(outputWidth*outputHeight*sizeof(float));
 
-  start = std::chrono::high_resolution_clock::now();
-  stbi_write_png(outputFile.c_str(), outputWidth, outputHeight, channels, imageFourier, outputWidth*channels*sizeof(unsigned char));
-  timeDifference = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - start).count();
-  printf(" || %s %fs\n", "file save:", float(timeDifference) / 1000000.0);
-
-  free(imageFourier);
-  free(imageScaled);
-  stbi_image_free(image);
+  discreteFourierTransformWrapper(imageFourier, imageScaledGray, outputWidth, outputHeight);
+  stbi_write_png(outputFile.c_str(), outputWidth, outputHeight, 1, imageFourier, outputWidth*sizeof(unsigned char));
 }
 
 void fourierTransformDirectory(std::string inputDirectory, std::string outputDirectory, int outputWidth, int outputHeight) {

@@ -30,7 +30,7 @@ void discreteFourierTransform(float* dst, float* src, int width, int height) {
   dst[idy * width + idx] = sqrtf((real * real) + (imaginary * imaginary));
 }
 
-extern "C" void discreteFourierTransformWrapper(unsigned char* dst, unsigned char* src, int width, int height, int channels) {
+extern "C" void discreteFourierTransformWrapper(float* dst, float* src, int width, int height) {
   dim3 block(32, 32);
   dim3 grid((width + block.x - 1) / block.x, (height + block.y - 1) / block.y);
 
