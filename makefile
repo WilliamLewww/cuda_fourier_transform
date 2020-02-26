@@ -60,4 +60,5 @@ memory-check:
 clean:
 	rm -rf $(BUILD_PATH)/*
 	mkdir -p $(BUILD_PATH)
+	mkdir -p $(BIN_PATH)
 	mkdir -p $(DUMP_PATH)
