@@ -34,16 +34,10 @@ extern "C" void discreteFourierTransformWrapper(float* dst, float* src, int widt
   dim3 block(32, 32);
   dim3 grid((width + block.x - 1) / block.x, (height + block.y - 1) / block.y);
 
-  float *h_image = (float*)malloc(width*height*sizeof(float));
-
-  for (int x = 0; x < width * height * channels; x += channels) {
-    h_image[x / channels] = ((src[x] * 0.30) + (src[x + 1] * 0.59) + (src[x + 2] * 0.11)) / 255.0;
-  }
-
   float *d_fourierImage, *d_image;
   cudaMalloc(&d_fourierImage, width*height*sizeof(float));
   cudaMalloc(&d_image, width*height*sizeof(float));
-  cudaMemcpy(d_image, h_image, width*height*sizeof(float), cudaMemcpyHostToDevice);
+  cudaMemcpy(d_image, src, width*height*sizeof(float), cudaMemcpyHostToDevice);
 
   discreteFourierTransform<<<block, grid>>>(d_fourierImage, d_image, width, height);
   cudaDeviceSynchronize();
@@ -65,21 +59,13 @@ extern "C" void discreteFourierTransformWrapper(float* dst, float* src, int widt
   float c = 255.0 / log(1 + fabs(max));
   for (int x = 0; x < width * height; x++) {
     h_circularFourierImage[x] = c * log(1 + fabs(h_circularFourierImage[x]));
-
-    dst[x * channels] = h_circularFourierImage[x];
-    dst[x * channels + 1] = h_circularFourierImage[x];
-    dst[x * channels + 2] = h_circularFourierImage[x];
-
-    if (channels == 4) {
-      dst[x * channels + 3] = 255;
-    }
+    dst[x] = h_circularFourierImage[x];
   }
 
   cudaFree(d_circularFourierImage);
   cudaFree(d_fourierImage);
   cudaFree(d_image);
   free(h_circularFourierImage);
-  free(h_image);
 }
 
 __global__

@@ -25,14 +25,25 @@ void fourierTransformFile(std::string inputFile, std::string outputFile, int out
   stbir_resize_uint8(image, width, height, 0, imageScaled, outputWidth, outputHeight, 0, channels);
 
   float* imageScaledGray = (float*)malloc(outputWidth*outputHeight*sizeof(float));
-  for (int x = 0; x < width * height * channels; x += channels) {
+  for (int x = 0; x < outputWidth * outputHeight * channels; x += channels) {
     imageScaledGray[x / channels] = ((imageScaled[x] * 0.30) + (imageScaled[x + 1] * 0.59) + (imageScaled[x + 2] * 0.11)) / 255.0;
   }
 
   float* imageFourier = (float*)malloc(outputWidth*outputHeight*sizeof(float));
-
   discreteFourierTransformWrapper(imageFourier, imageScaledGray, outputWidth, outputHeight);
-  stbi_write_png(outputFile.c_str(), outputWidth, outputHeight, 1, imageFourier, outputWidth*sizeof(unsigned char));
+
+  unsigned char* imageFourierChanneled = (unsigned char*)malloc(outputWidth*outputHeight*channels*sizeof(unsigned char));
+  for (int x = 0; x < outputWidth * outputHeight; x++) {
+    imageFourierChanneled[x * channels + 0] = imageFourier[x];
+    imageFourierChanneled[x * channels + 1] = imageFourier[x];
+    imageFourierChanneled[x * channels + 2] = imageFourier[x];
+
+    if (channels == 4) {
+      imageFourierChanneled[x * channels + 3] = 255;
+    }
+  }
+
+  stbi_write_png(outputFile.c_str(), outputWidth, outputHeight, channels, imageFourierChanneled, outputWidth*channels*sizeof(unsigned char));
 }
 
 void fourierTransformDirectory(std::string inputDirectory, std::string outputDirectory, int outputWidth, int outputHeight) {
