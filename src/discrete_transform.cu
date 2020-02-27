@@ -99,20 +99,14 @@ void discreteFourierTransformBatch(float* dst, float* src, int width, int height
   dst[idz * width * height + idy * width + idx] = sqrtf((real * real) + (imaginary * imaginary));
 }
 
-extern "C" void discreteFourierTransformBatchWrapper(unsigned char* dst, unsigned char* src, int width, int height, int depth, int channels) {
+extern "C" void discreteFourierTransformBatchWrapper(float* dst, float* src, int width, int height, int depth) {
   dim3 block(32, 32, 32);
   dim3 grid((width + block.x - 1) / block.x, (height + block.y - 1) / block.y, (depth + block.z - 1) / block.z);
-
-  float *h_image = (float*)malloc(width*height*depth*sizeof(float));
-
-  for (int x = 0; x < width * height * depth * channels; x += channels) {
-    h_image[x / channels] = ((src[x] * 0.30) + (src[x + 1] * 0.59) + (src[x + 2] * 0.11)) / 255.0;
-  }
 
   float *d_fourierImage, *d_image;
   cudaMalloc(&d_fourierImage, width*height*depth*sizeof(float));
   cudaMalloc(&d_image, width*height*depth*sizeof(float));
-  cudaMemcpy(d_image, h_image, width*height*depth*sizeof(float), cudaMemcpyHostToDevice);
+  cudaMemcpy(d_image, src, width*height*depth*sizeof(float), cudaMemcpyHostToDevice);
 
   discreteFourierTransformBatch<<<block, grid>>>(d_fourierImage, d_image, width, height, depth);
   cudaDeviceSynchronize();
@@ -134,19 +128,11 @@ extern "C" void discreteFourierTransformBatchWrapper(unsigned char* dst, unsigne
   float c = 255.0 / log(1 + fabs(max));
   for (int x = 0; x < width * height * depth; x++) {
     h_circularFourierImage[x] = c * log(1 + fabs(h_circularFourierImage[x]));
-
-    dst[x * channels] = h_circularFourierImage[x];
-    dst[x * channels + 1] = h_circularFourierImage[x];
-    dst[x * channels + 2] = h_circularFourierImage[x];
-
-    if (channels == 4) {
-      dst[x * channels + 3] = 255;
-    }
+    dst[x] = h_circularFourierImage[x];
   }
 
   cudaFree(d_circularFourierImage);
   cudaFree(d_fourierImage);
   cudaFree(d_image);
   free(h_circularFourierImage);
-  free(h_image);
 }

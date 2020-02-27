@@ -15,7 +15,7 @@
 
 extern "C" {
   void discreteFourierTransformWrapper(float* dst, float* src, int width, int height);
-  void discreteFourierTransformBatchWrapper(unsigned char* dst, unsigned char* src, int width, int height, int depth, int channels);
+  void discreteFourierTransformBatchWrapper(float* dst, float* src, int width, int height, int depth);
 }
 
 void fourierTransformFile(std::string inputFile, std::string outputFile, int outputWidth, int outputHeight, int channels) {
@@ -84,25 +84,21 @@ void fourierTransformDirectory(std::string inputDirectory, std::string outputDir
     free(imageScaled);
   }
 
-  unsigned char* imageArrayFourier = (unsigned char*)malloc(outputWidth*outputHeight*channels*fileList.size()*sizeof(unsigned char));
-
-  printf("%s %s %dx%d", inputDirectory.c_str(), outputDirectory.c_str(), outputWidth, outputHeight);
-
-  std::chrono::high_resolution_clock::time_point start = std::chrono::high_resolution_clock::now();
-  discreteFourierTransformBatchWrapper(imageArrayFourier, imageScaledArray, outputWidth, outputHeight, fileList.size(), channels);
-  int64_t timeDifference = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - start).count();
-  printf(" || %s %fs", "kernel execution:", float(timeDifference) / 1000000.0);
-
-  start = std::chrono::high_resolution_clock::now();
-  for (int x = 0; x < fileList.size(); x++) {
-    std::string outputFile = outputDirectory + std::string("/") + fileList[x];
-    stbi_write_png(outputFile.c_str(), outputWidth, outputHeight, channels, &imageArrayFourier[outputWidth * outputHeight * channels * x], outputWidth*channels*sizeof(unsigned char));
+  float* imageScaledGrayArray = (float*)malloc(outputWidth*outputHeight*fileList.size()*sizeof(float));
+  for (int x = 0; x < outputWidth * outputHeight * channels * fileList.size(); x += channels) {
+    imageScaledArray[x / channels] = ((imageScaledArray[x] * 0.30) + (imageScaledArray[x + 1] * 0.59) + (imageScaledArray[x + 2] * 0.11)) / 255.0;
   }
-  timeDifference = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - start).count();
-  printf(" || %s %fs\n", "file save:", float(timeDifference) / 1000000.0);
 
-  free(imageArrayFourier);
-  free(imageScaledArray);
+  float* imageFourierArray = (float*)malloc(outputWidth*outputHeight*fileList.size()*sizeof(float));
+  discreteFourierTransformBatchWrapper(imageFourierArray, imageScaledGrayArray, outputWidth, outputHeight, fileList.size());
+
+  // for (int x = 0; x < fileList.size(); x++) {
+  //   std::string outputFile = outputDirectory + std::string("/") + fileList[x];
+  //   stbi_write_png(outputFile.c_str(), outputWidth, outputHeight, channels, &imageArrayFourier[outputWidth * outputHeight * channels * x], outputWidth*channels*sizeof(unsigned char));
+  // }
+
+  // free(imageArrayFourier);
+  // free(imageScaledArray);
 }
 
 int main(int argn, char** argv) {

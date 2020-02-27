@@ -1,4 +1,4 @@
-CUDA_PATH=/usr/local/cuda-10.2
+CUDA_PATH=/usr/local/cuda-10.1
 
 CURRENT_PATH=$(shell pwd)
 
@@ -20,7 +20,7 @@ CUDA_FLAGS=--gpu-architecture=sm_30
 LINKER_ARGUMENTS=
 
 EXEC=fourier_transform.out
-EXEC_ARGS=res/house/0.png dump/house/0.png
+EXEC_ARGS=res/house dump/house
 
 all: clean $(EXEC) run
 
