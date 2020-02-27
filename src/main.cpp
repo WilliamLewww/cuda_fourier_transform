@@ -44,6 +44,12 @@ void fourierTransformFile(std::string inputFile, std::string outputFile, int out
   }
 
   stbi_write_png(outputFile.c_str(), outputWidth, outputHeight, channels, imageFourierChanneled, outputWidth*channels*sizeof(unsigned char));
+
+  free(imageFourierChanneled);
+  free(imageFourier);
+  free(imageScaledGray);
+  free(imageScaled);
+  stbi_image_free(image);
 }
 
 void fourierTransformDirectory(std::string inputDirectory, std::string outputDirectory, int outputWidth, int outputHeight) {
@@ -80,8 +86,8 @@ void fourierTransformDirectory(std::string inputDirectory, std::string outputDir
 
     memcpy(imageScaledArray + (outputWidth * outputHeight * channels * x), imageScaled, outputWidth*outputHeight*channels*sizeof(unsigned char));
 
-    free(image);
     free(imageScaled);
+    stbi_image_free(image);
   }
 
   float* imageScaledGrayArray = (float*)malloc(outputWidth*outputHeight*fileList.size()*sizeof(float));
@@ -107,6 +113,11 @@ void fourierTransformDirectory(std::string inputDirectory, std::string outputDir
     std::string outputFile = outputDirectory + std::string("/") + fileList[x];
     stbi_write_png(outputFile.c_str(), outputWidth, outputHeight, channels, &imageFourierChanneledArray[outputWidth * outputHeight * channels * x], outputWidth*channels*sizeof(unsigned char));
   }
+
+  free(imageFourierChanneledArray);
+  free(imageFourierArray);
+  free(imageScaledGrayArray);
+  free(imageScaledArray);
 }
 
 int main(int argn, char** argv) {
