@@ -86,7 +86,7 @@ void fourierTransformDirectory(std::string inputDirectory, std::string outputDir
 
   float* imageScaledGrayArray = (float*)malloc(outputWidth*outputHeight*fileList.size()*sizeof(float));
   for (int x = 0; x < outputWidth * outputHeight * channels * fileList.size(); x += channels) {
-    imageScaledArray[x / channels] = ((imageScaledArray[x] * 0.30) + (imageScaledArray[x + 1] * 0.59) + (imageScaledArray[x + 2] * 0.11)) / 255.0;
+    imageScaledGrayArray[x / channels] = ((imageScaledArray[x] * 0.30) + (imageScaledArray[x + 1] * 0.59) + (imageScaledArray[x + 2] * 0.11)) / 255.0;
   }
 
   float* imageFourierArray = (float*)malloc(outputWidth*outputHeight*fileList.size()*sizeof(float));
