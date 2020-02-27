@@ -92,13 +92,21 @@ void fourierTransformDirectory(std::string inputDirectory, std::string outputDir
   float* imageFourierArray = (float*)malloc(outputWidth*outputHeight*fileList.size()*sizeof(float));
   discreteFourierTransformBatchWrapper(imageFourierArray, imageScaledGrayArray, outputWidth, outputHeight, fileList.size());
 
+  unsigned char* imageFourierChanneledArray = (unsigned char*)malloc(outputWidth*outputHeight*channels*fileList.size()*sizeof(unsigned char));
+  for (int x = 0; x < outputWidth * outputHeight * fileList.size(); x++) {
+    imageFourierChanneledArray[x * channels + 0] = imageFourierArray[x];
+    imageFourierChanneledArray[x * channels + 1] = imageFourierArray[x];
+    imageFourierChanneledArray[x * channels + 2] = imageFourierArray[x];
+
+    if (channels == 4) {
+      imageFourierChanneledArray[x * channels + 3] = 255;
+    }
+  }
+
   // for (int x = 0; x < fileList.size(); x++) {
   //   std::string outputFile = outputDirectory + std::string("/") + fileList[x];
   //   stbi_write_png(outputFile.c_str(), outputWidth, outputHeight, channels, &imageArrayFourier[outputWidth * outputHeight * channels * x], outputWidth*channels*sizeof(unsigned char));
   // }
-
-  // free(imageArrayFourier);
-  // free(imageScaledArray);
 }
 
 int main(int argn, char** argv) {
