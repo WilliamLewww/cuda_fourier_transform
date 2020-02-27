@@ -103,10 +103,10 @@ void fourierTransformDirectory(std::string inputDirectory, std::string outputDir
     }
   }
 
-  // for (int x = 0; x < fileList.size(); x++) {
-  //   std::string outputFile = outputDirectory + std::string("/") + fileList[x];
-  //   stbi_write_png(outputFile.c_str(), outputWidth, outputHeight, channels, &imageArrayFourier[outputWidth * outputHeight * channels * x], outputWidth*channels*sizeof(unsigned char));
-  // }
+  for (int x = 0; x < fileList.size(); x++) {
+    std::string outputFile = outputDirectory + std::string("/") + fileList[x];
+    stbi_write_png(outputFile.c_str(), outputWidth, outputHeight, channels, &imageFourierChanneledArray[outputWidth * outputHeight * channels * x], outputWidth*channels*sizeof(unsigned char));
+  }
 }
 
 int main(int argn, char** argv) {
