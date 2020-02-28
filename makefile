@@ -27,7 +27,7 @@ all: clean $(EXEC) run
 SRCS := $(wildcard src/*.cpp)
 OBJS := $(SRCS:src/%.cpp=%.o)
 
-CUDA_SRCS := discrete_transform.cu cooley_turkey_transform.cu
+CUDA_SRCS := discrete_transform.cu fast_transform.cu
 CUDA_OBJS := $(CUDA_SRCS:%.cu=%.o)
 
 $(EXEC): $(OBJS) $(CUDA_OBJS)
