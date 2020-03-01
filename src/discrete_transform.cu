@@ -2,7 +2,7 @@
 #include <cmath>
 
 __global__
-void circularShift(float* dst, float* src, int width, int height, int shiftX, int shiftY) {
+void circularShift2D(float* dst, float* src, int width, int height, int shiftX, int shiftY) {
   int idx = blockIdx.x * blockDim.x + threadIdx.x;
   int idy = blockIdx.y * blockDim.y + threadIdx.y;
 
@@ -12,7 +12,7 @@ void circularShift(float* dst, float* src, int width, int height, int shiftX, in
 }
 
 __global__
-void discreteFourierTransform(float* dst, float* src, int width, int height) {
+void discreteFourierTransform2D(float* dst, float* src, int width, int height) {
   int idx = blockIdx.x * blockDim.x + threadIdx.x;
   int idy = blockIdx.y * blockDim.y + threadIdx.y;
 
@@ -30,7 +30,7 @@ void discreteFourierTransform(float* dst, float* src, int width, int height) {
   dst[idy * width + idx] = sqrtf((real * real) + (imaginary * imaginary));
 }
 
-extern "C" void discreteFourierTransformWrapper(float* dst, float* src, int width, int height) {
+extern "C" void discreteFourierTransformWrapper2D(float* dst, float* src, int width, int height) {
   dim3 block(32, 32);
   dim3 grid((width + block.x - 1) / block.x, (height + block.y - 1) / block.y);
 
@@ -39,12 +39,12 @@ extern "C" void discreteFourierTransformWrapper(float* dst, float* src, int widt
   cudaMalloc(&d_image, width*height*sizeof(float));
   cudaMemcpy(d_image, src, width*height*sizeof(float), cudaMemcpyHostToDevice);
 
-  discreteFourierTransform<<<block, grid>>>(d_fourierImage, d_image, width, height);
+  discreteFourierTransform2D<<<block, grid>>>(d_fourierImage, d_image, width, height);
   cudaDeviceSynchronize();
 
   float *d_circularFourierImage;
   cudaMalloc(&d_circularFourierImage, width*height*sizeof(float));
-  circularShift<<<block, grid>>>(d_circularFourierImage, d_fourierImage, width, height, width / 2, height / 2);
+  circularShift2D<<<block, grid>>>(d_circularFourierImage, d_fourierImage, width, height, width / 2, height / 2);
 
   float *h_circularFourierImage = (float*)malloc(width*height*sizeof(float));
   cudaMemcpy(h_circularFourierImage, d_circularFourierImage, width*height*sizeof(float), cudaMemcpyDeviceToHost);
@@ -69,7 +69,7 @@ extern "C" void discreteFourierTransformWrapper(float* dst, float* src, int widt
 }
 
 __global__
-void circularShiftBatch(float* dst, float* src, int width, int height, int depth, int shiftX, int shiftY) {
+void circularShiftBatch2D(float* dst, float* src, int width, int height, int depth, int shiftX, int shiftY) {
   int idx = blockIdx.x * blockDim.x + threadIdx.x;
   int idy = blockIdx.y * blockDim.y + threadIdx.y;
   int idz = blockIdx.z * blockDim.z + threadIdx.z;
@@ -80,7 +80,7 @@ void circularShiftBatch(float* dst, float* src, int width, int height, int depth
 }
 
 __global__
-void discreteFourierTransformBatch(float* dst, float* src, int width, int height, int depth) {
+void discreteFourierTransformBatch2D(float* dst, float* src, int width, int height, int depth) {
   int idx = blockIdx.x * blockDim.x + threadIdx.x;
   int idy = blockIdx.y * blockDim.y + threadIdx.y;
   int idz = blockIdx.z * blockDim.z + threadIdx.z;
@@ -99,7 +99,7 @@ void discreteFourierTransformBatch(float* dst, float* src, int width, int height
   dst[idz * width * height + idy * width + idx] = sqrtf((real * real) + (imaginary * imaginary));
 }
 
-extern "C" void discreteFourierTransformBatchWrapper(float* dst, float* src, int width, int height, int depth) {
+extern "C" void discreteFourierTransformBatchWrapper2D(float* dst, float* src, int width, int height, int depth) {
   dim3 block(32, 32, 32);
   dim3 grid((width + block.x - 1) / block.x, (height + block.y - 1) / block.y, (depth + block.z - 1) / block.z);
 
@@ -108,12 +108,12 @@ extern "C" void discreteFourierTransformBatchWrapper(float* dst, float* src, int
   cudaMalloc(&d_image, width*height*depth*sizeof(float));
   cudaMemcpy(d_image, src, width*height*depth*sizeof(float), cudaMemcpyHostToDevice);
 
-  discreteFourierTransformBatch<<<block, grid>>>(d_fourierImage, d_image, width, height, depth);
+  discreteFourierTransformBatch2D<<<block, grid>>>(d_fourierImage, d_image, width, height, depth);
   cudaDeviceSynchronize();
 
   float *d_circularFourierImage;
   cudaMalloc(&d_circularFourierImage, width*height*depth*sizeof(float));
-  circularShiftBatch<<<block, grid>>>(d_circularFourierImage, d_fourierImage, width, height, depth, width / 2, height / 2);
+  circularShiftBatch2D<<<block, grid>>>(d_circularFourierImage, d_fourierImage, width, height, depth, width / 2, height / 2);
 
   float *h_circularFourierImage = (float*)malloc(width*height*depth*sizeof(float));
   cudaMemcpy(h_circularFourierImage, d_circularFourierImage, width*height*depth*sizeof(float), cudaMemcpyDeviceToHost);

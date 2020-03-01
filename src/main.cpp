@@ -14,8 +14,9 @@
 #include "stb/stb_image_resize.h"
 
 extern "C" {
-  void discreteFourierTransformWrapper(float* dst, float* src, int width, int height);
-  void discreteFourierTransformBatchWrapper(float* dst, float* src, int width, int height, int depth);
+  float* fastFourierTransformCPU(float* dst, float* src, int width, int height);
+  void discreteFourierTransformWrapper2D(float* dst, float* src, int width, int height);
+  void discreteFourierTransformBatchWrapper2D(float* dst, float* src, int width, int height, int depth);
 }
 
 void fourierTransformFile(std::string inputFile, std::string outputFile, int outputWidth, int outputHeight, int channels) {
@@ -29,8 +30,11 @@ void fourierTransformFile(std::string inputFile, std::string outputFile, int out
     imageScaledGray[x / channels] = ((imageScaled[x] * 0.30) + (imageScaled[x + 1] * 0.59) + (imageScaled[x + 2] * 0.11)) / 255.0;
   }
 
+  // float* imageFourier = (float*)malloc(outputWidth*outputHeight*sizeof(float));
+  // discreteFourierTransformWrapper2D(imageFourier, imageScaledGray, outputWidth, outputHeight);
+
   float* imageFourier = (float*)malloc(outputWidth*outputHeight*sizeof(float));
-  discreteFourierTransformWrapper(imageFourier, imageScaledGray, outputWidth, outputHeight);
+  fastFourierTransformCPU(imageFourier, imageScaledGray, outputWidth, outputHeight);
 
   unsigned char* imageFourierChanneled = (unsigned char*)malloc(outputWidth*outputHeight*channels*sizeof(unsigned char));
   for (int x = 0; x < outputWidth * outputHeight; x++) {
@@ -96,7 +100,7 @@ void fourierTransformDirectory(std::string inputDirectory, std::string outputDir
   }
 
   float* imageFourierArray = (float*)malloc(outputWidth*outputHeight*fileList.size()*sizeof(float));
-  discreteFourierTransformBatchWrapper(imageFourierArray, imageScaledGrayArray, outputWidth, outputHeight, fileList.size());
+  discreteFourierTransformBatchWrapper2D(imageFourierArray, imageScaledGrayArray, outputWidth, outputHeight, fileList.size());
 
   unsigned char* imageFourierChanneledArray = (unsigned char*)malloc(outputWidth*outputHeight*channels*fileList.size()*sizeof(unsigned char));
   for (int x = 0; x < outputWidth * outputHeight * fileList.size(); x++) {
