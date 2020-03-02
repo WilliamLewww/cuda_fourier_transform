@@ -30,7 +30,10 @@ float* recursiveFourierTransformCPU(float* samples, int size) {
 }
 
 extern "C" void fastFourierTransformCPU(float* dst, float* src, int width, int height) {
+  float* samples = (float*)malloc(width*height*sizeof(float));
+  memcpy(samples, src, width*height*sizeof(float));
+
   for (int row = 0; row < height; row++) {
-    recursiveFourierTransformCPU(&src[row * width], width);
+    recursiveFourierTransformCPU(&samples[row * width], width);
   }
 }
