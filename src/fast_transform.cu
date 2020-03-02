@@ -33,9 +33,9 @@ extern "C" void fastFourierTransformCPU(float* dst, float* src, int width, int h
   float* samples = (float*)malloc(width*height*sizeof(float));
   memcpy(samples, src, width*height*sizeof(float));
 
-  float* temp;
+  float* fourierSamples;
   for (int row = 0; row < height; row++) {
-    temp = recursiveFourierTransformCPU(&samples[row * width], width);
-    memcpy(&dst[row * width], temp, width*sizeof(float));
+    fourierSamples = recursiveFourierTransformCPU(&samples[row * width], width);
+    memcpy(&dst[row * width], fourierSamples, width*sizeof(float));
   }
 }
