@@ -14,7 +14,7 @@
 #include "stb/stb_image_resize.h"
 
 extern "C" {
-  float* fastFourierTransformCPU(float* dst, float* src, int width, int height);
+  void fastFourierTransformCPU(float* dst, float* src, int width, int height);
   void discreteFourierTransformWrapper2D(float* dst, float* src, int width, int height);
   void discreteFourierTransformBatchWrapper2D(float* dst, float* src, int width, int height, int depth);
 }

@@ -29,6 +29,8 @@ float* recursiveFourierTransformCPU(float* samples, int size) {
   return bins;
 }
 
-extern "C" float* fastFourierTransformCPU(float* dst, float* src, int width, int height) {
-  return dst;
+extern "C" void fastFourierTransformCPU(float* dst, float* src, int width, int height) {
+  for (int row = 0; row < height; row++) {
+    recursiveFourierTransformCPU(&src[row * width], width);
+  }
 }
