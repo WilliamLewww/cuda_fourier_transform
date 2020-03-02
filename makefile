@@ -49,7 +49,7 @@ nvvp:
 	sudo $(NVVP) $(CURRENT_PATH)/bin/$(EXEC) $(EXEC_ARGS) -vm /usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java
 
 gdb:
-	gdb $(CURRENT_PATH)/bin/$(EXEC)
+	gdb --args $(CURRENT_PATH)/bin/$(EXEC) $(EXEC_ARGS)
 
 cuda-gdb:
 	$(CUDA_GDB) $(BUILD_PATH)/$(EXEC)
