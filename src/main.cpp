@@ -14,10 +14,11 @@
 #include "stb/stb_image_resize.h"
 
 extern "C" {
-  void fastFourierTransformCPU(float* dst, float* src, int width, int height);
   void discreteFourierTransformWrapper2D(float* dst, float* src, int width, int height);
   void discreteFourierTransformBatchWrapper2D(float* dst, float* src, int width, int height, int depth);
 }
+
+extern void fastFourierTransformCPU(float* dst, float* src, int width, int height);
 
 void fourierTransformFile(std::string inputFile, std::string outputFile, int outputWidth, int outputHeight, int channels) {
   int width, height, comp;

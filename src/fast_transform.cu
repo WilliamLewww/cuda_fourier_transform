@@ -1,41 +1,29 @@
 #include <stdio.h>
 #include <cmath>
+#include <complex>
 
-float* recursiveFourierTransformCPU(float* samples, int size) {
-  if (size == 1) {
-    return samples;
+void recursiveFourierTransformCPU(std::complex<double> buf[], std::complex<double> out[], int n, int step) {
+  if (step < n) {
+    recursiveFourierTransformCPU(out, buf, n, step * 2);
+    recursiveFourierTransformCPU(out + step, buf + step, n, step * 2);
+ 
+    for (int i = 0; i < n; i += 2 * step) {
+      std::complex<double> I(0, 1);
+
+      std::complex<double> t = std::exp(-I * M_PI * double(i) / double(n)) * out[i + step];
+      buf[i / 2]     = out[i] + t;
+      buf[(i + n)/2] = out[i] - t;
+    }
   }
-
-  float* even = (float*)malloc(size/2*sizeof(float));
-  float* odd = (float*)malloc(size/2*sizeof(float));
-
-  for (int x = 0; x < size / 2; x++) {
-    even[x] = samples[2 * x];
-    odd[x] = samples[2  * x + 1];
-  }
-
-  float* fEven = recursiveFourierTransformCPU(even, size / 2);
-  float* fOdd = recursiveFourierTransformCPU(odd, size / 2);
-
-  float* bins = (float*)malloc(size*sizeof(float));
-  for (int x = 0; x < size / 2; x++) {
-    float real = sinf(-2.0 * M_PI * x / size) * fOdd[x];
-    float imaginary = cosf(-2.0 * M_PI * x / size) * fOdd[x];
-
-    bins[x] = fEven[x] + sqrtf((real * real) + (imaginary * imaginary));
-    bins[x + (size / 2)] = fEven[x] - sqrtf((real * real) + (imaginary * imaginary));
-  }
-
-  return bins;
 }
 
-extern "C" void fastFourierTransformCPU(float* dst, float* src, int width, int height) {
-  float* samples = (float*)malloc(width*height*sizeof(float));
-  memcpy(samples, src, width*height*sizeof(float));
+void fastFourierTransformCPU(float* dst, float* src, int width, int height) {
+  std::complex<double> buffer[] = {1, 1, 1, 1, 0, 0, 0, 0};
+  std::complex<double> bufferClone[] = {1, 1, 1, 1, 0, 0, 0, 0};
 
-  float* fourierSamples;
-  for (int row = 0; row < height; row++) {
-    fourierSamples = recursiveFourierTransformCPU(&samples[row * width], width);
-    memcpy(&dst[row * width], fourierSamples, width*sizeof(float));
+  recursiveFourierTransformCPU(buffer, bufferClone, 8, 1);
+
+  for (int x = 0; x < 8; x++) {
+    printf("%lf %lf\n", buffer[x].real(), buffer[x].imag());
   }
 }
