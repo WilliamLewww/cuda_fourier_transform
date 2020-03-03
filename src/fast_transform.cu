@@ -8,10 +8,8 @@ void recursiveFastFourierTransformCPU(std::complex<double>* buf, std::complex<do
     recursiveFastFourierTransformCPU(out + step, buf + step, n, step * 2);
  
     for (int i = 0; i < n; i += 2 * step) {
-      std::complex<double> I(0, 1);
-
-      std::complex<double> t = std::exp(-I * M_PI * double(i) / double(n)) * out[i + step];
-      buf[i / 2]     = out[i] + t;
+      std::complex<double> t = std::exp(-std::complex<double>(0, 1) * M_PI * double(i) / double(n)) * out[i + step];
+      buf[i / 2] = out[i] + t;
       buf[(i + n)/2] = out[i] - t;
     }
   }
