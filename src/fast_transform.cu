@@ -30,7 +30,22 @@ void fastFourierTransformCPU(float* dst, float* src, int width, int height) {
     recursiveFastFourierTransformCPU(buffer, bufferClone, width, 1);
 
     for (int x = 0; x < width; x++) {
+      imageBuffer[x * height + y] = buffer[x];
+    }
+  }
+
+  for (int y = 0; y < height; y++) {
+    memcpy(buffer, &imageBuffer[y * width], width*sizeof(std::complex<float>));
+    memcpy(bufferClone, buffer, width*sizeof(std::complex<float>));
+
+    recursiveFastFourierTransformCPU(buffer, bufferClone, width, 1);
+
+    for (int x = 0; x < width; x++) {
       imageBuffer[y * width + x] = buffer[x];
     }
+  }
+
+  for (int x = 0; x < width * height; x++) {
+    dst[x] = sqrtf((imageBuffer[x].real() * imageBuffer[x].real()) + (imageBuffer[x].imag() * imageBuffer[x].imag()));
   }
 }
