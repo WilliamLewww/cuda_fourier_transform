@@ -16,7 +16,7 @@ void recursiveFastFourierTransformCPU(std::complex<float>* bufferCombine, std::c
 }
 
 void fastFourierTransformCPU(float* dst, float* src, int width, int height) {
-  std::complex<float>* totalBuffer = (std::complex<float>*)malloc(width*height*sizeof(std::complex<float>));
+  std::complex<float>* imageBuffer = (std::complex<float>*)malloc(width*height*sizeof(std::complex<float>));
 
   std::complex<float>* buffer = (std::complex<float>*)malloc(width*sizeof(std::complex<float>));
   std::complex<float>* bufferClone = (std::complex<float>*)malloc(width*sizeof(std::complex<float>));
@@ -30,7 +30,7 @@ void fastFourierTransformCPU(float* dst, float* src, int width, int height) {
     recursiveFastFourierTransformCPU(buffer, bufferClone, width, 1);
 
     for (int x = 0; x < width; x++) {
-      totalBuffer[y * width + x] = buffer[x];
+      imageBuffer[y * width + x] = buffer[x];
     }
   }
 }
