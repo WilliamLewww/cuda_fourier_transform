@@ -127,8 +127,8 @@ void fourierTransformDirectory(std::string inputDirectory, std::string outputDir
 
 int main(int argn, char** argv) {
   if (argn == 3 || argn == 5) {
-    int outputWidth = 500;
-    int outputHeight = 500;
+    int outputWidth = 512;
+    int outputHeight = 512;
     if (argn == 5) {
       outputWidth = atoi(argv[3]);
       outputHeight = atoi(argv[4]);
