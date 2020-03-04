@@ -16,12 +16,18 @@ void recursiveFastFourierTransformCPU(std::complex<double>* bufferCombine, std::
 }
 
 void fastFourierTransformCPU(float* dst, float* src, int width, int height) {
-  std::complex<double> buffer[] = {1, 1, 1, 1, 0, 0, 0, 0};
-  std::complex<double> bufferClone[] = {1, 1, 1, 1, 0, 0, 0, 0};
+  // std::complex<double> buffer[] = {1, 1, 1, 1, 0, 0, 0, 0};
+  // std::complex<double> bufferClone[] = {1, 1, 1, 1, 0, 0, 0, 0};
 
-  recursiveFastFourierTransformCPU(buffer, bufferClone, 8, 1);
+  std::complex<double>* buffer = (std::complex<double>*)malloc(width*sizeof(std::complex<double>));
+  for (int x = 0; x < width; x++) { buffer[x] = src[x]; }
 
-  for (int x = 0; x < 8; x++) {
-    printf("%f\n", sqrt((buffer[x].real() * buffer[x].real()) + (buffer[x].imag() * buffer[x].imag())));
+  std::complex<double>* bufferClone = (std::complex<double>*)malloc(width*sizeof(std::complex<double>));
+  memcpy(bufferClone, buffer, width*sizeof(std::complex<double>));
+
+  recursiveFastFourierTransformCPU(buffer, bufferClone, width, 1);
+
+  for (int x = 0; x < width; x++) {
+    printf("%f\n", sqrtf((buffer[x].real() * buffer[x].real()) + (buffer[x].imag() * buffer[x].imag())));
   }
 }
