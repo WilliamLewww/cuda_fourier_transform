@@ -2,15 +2,15 @@
 #include <cmath>
 #include <complex>
 
-void recursiveFastFourierTransformCPU(std::complex<double>* buffer, std::complex<double>* out, int size, int stride) {
+void recursiveFastFourierTransformCPU(std::complex<double>* bufferCombine, std::complex<double>* bufferSplit, int size, int stride) {
   if (stride < size) {
-    recursiveFastFourierTransformCPU(out, buffer, size, stride * 2);
-    recursiveFastFourierTransformCPU(out + stride, buffer + stride, size, stride * 2);
+    recursiveFastFourierTransformCPU(bufferSplit, bufferCombine, size, stride * 2);
+    recursiveFastFourierTransformCPU(bufferSplit + stride, bufferCombine + stride, size, stride * 2);
  
     for (int i = 0; i < size; i += 2 * stride) {
-      std::complex<double> t = std::exp(-std::complex<double>(0, 1) * M_PI * double(i) / double(size)) * out[i + stride];
-      buffer[i / 2] = out[i] + t;
-      buffer[(i + size)/2] = out[i] - t;
+      std::complex<double> t = std::exp(-std::complex<double>(0, 1) * M_PI * double(i) / double(size)) * bufferSplit[i + stride];
+      bufferCombine[i / 2] = bufferSplit[i] + t;
+      bufferCombine[(i + size)/2] = bufferSplit[i] - t;
     }
   }
 }
