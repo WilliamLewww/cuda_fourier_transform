@@ -2,6 +2,14 @@
 #include <cmath>
 #include <complex>
 
+void circularShiftCPU(float* dst, float* src, int width, int height, int shiftX, int shiftY) {
+  for (int y = 0; y < height; y++) {
+    for (int x = 0; x < width; x++) {
+      dst[y * width + x] = src[(((y - shiftY) % height + height) % height) * width + (((x - shiftX) % width + width) % width)];
+    }
+  }
+}
+
 void recursiveFastFourierTransformCPU(std::complex<float>* bufferCombine, std::complex<float>* bufferSplit, int size, int stride) {
   if (stride < size) {
     recursiveFastFourierTransformCPU(bufferSplit, bufferCombine, size, stride * 2);
@@ -16,6 +24,9 @@ void recursiveFastFourierTransformCPU(std::complex<float>* bufferCombine, std::c
 }
 
 void fastFourierTransformCPU(float* dst, float* src, int width, int height) {
+  float* image = (float*)malloc(width*height*sizeof(float));
+  float* imageRotated = (float*)malloc(width*height*sizeof(float));
+
   std::complex<float>* imageBuffer = (std::complex<float>*)malloc(width*height*sizeof(std::complex<float>));
 
   std::complex<float>* buffer = (std::complex<float>*)malloc(width*sizeof(std::complex<float>));
@@ -41,11 +52,17 @@ void fastFourierTransformCPU(float* dst, float* src, int width, int height) {
     recursiveFastFourierTransformCPU(buffer, bufferClone, width, 1);
 
     for (int x = 0; x < width; x++) {
-      imageBuffer[y * width + x] = buffer[x];
+      image[y * width + x] = sqrtf((buffer[x].real() * buffer[x].real()) + (buffer[x].imag() * buffer[x].imag()));
     }
   }
 
-  for (int x = 0; x < width * height; x++) {
-    dst[x] = sqrtf((imageBuffer[x].real() * imageBuffer[x].real()) + (imageBuffer[x].imag() * imageBuffer[x].imag()));
-  }
+  circularShiftCPU(imageRotated, image, width, height, width / 2, height / 2);
+
+  memcpy(dst, imageRotated, width*height*sizeof(float));
+
+  free(bufferClone);
+  free(buffer);
+  free(imageBuffer);
+  free(imageRotated);
+  free(image);
 }
