@@ -58,6 +58,18 @@ void fastFourierTransformCPU(float* dst, float* src, int width, int height) {
 
   circularShiftCPU(imageRotated, image, width, height, width / 2, height / 2);
 
+  float max = 0.0;
+  for (int x = 0; x < width * height; x++) {
+    if (imageRotated[x] > max) {
+      max = imageRotated[x];
+    }
+  }
+
+  float c = 255.0 / log(1 + fabs(max));
+  for (int x = 0; x < width * height; x++) {
+    imageRotated[x] = c * log(1 + fabs(imageRotated[x]));
+  }
+
   memcpy(dst, imageRotated, width*height*sizeof(float));
 
   free(bufferClone);
