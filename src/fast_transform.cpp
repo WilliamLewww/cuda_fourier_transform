@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <cmath>
 #include <complex>
+#include <cstring>
 
 void circularShiftCPU(float* dst, float* src, int width, int height, int shiftX, int shiftY) {
   for (int y = 0; y < height; y++) {
@@ -28,7 +29,6 @@ void fastFourierTransformCPU(float* dst, float* src, int width, int height) {
   float* imageRotated = (float*)malloc(width*height*sizeof(float));
 
   std::complex<float>* imageBuffer = (std::complex<float>*)malloc(width*height*sizeof(std::complex<float>));
-
   std::complex<float>* buffer = (std::complex<float>*)malloc(width*sizeof(std::complex<float>));
   std::complex<float>* bufferClone = (std::complex<float>*)malloc(width*sizeof(std::complex<float>));
 
