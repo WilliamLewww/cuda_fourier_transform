@@ -12,8 +12,8 @@ cuFloatComplex cuexpf(cuFloatComplex value) {
 
 __global__
 void recursiveFastFourierTransform(cuFloatComplex* dst, cuFloatComplex* src, int width, int height) {
-  int idx = blockIdx.x * blockDim.x + threadIdx.x;
-  int idy = blockIdx.y * blockDim.y + threadIdx.y;
+  // int idx = blockIdx.x * blockDim.x + threadIdx.x;
+  // int idy = blockIdx.y * blockDim.y + threadIdx.y;
 }
 
 extern "C" void fastFourierTransformWrapper2D(float* dst, float* src, int width, int height) {
