@@ -20,7 +20,8 @@ extern "C" {
   void fastFourierTransformWrapper2D(float* dst, float* src, int width, int height);
 }
 
-extern void fastFourierTransformCPU(float* dst, float* src, int width, int height);
+extern void recursiveFastFourierTransformWrapperCPU(float* dst, float* src, int width, int height);
+extern void iterativeFastFourierTransformWrapperCPU(float* dst, float* src, int width, int height);
 
 void fourierTransformFile(std::string inputFile, std::string outputFile, int outputWidth, int outputHeight, int channels) {
   int width, height, comp;
@@ -33,12 +34,11 @@ void fourierTransformFile(std::string inputFile, std::string outputFile, int out
     imageScaledGray[x / channels] = ((imageScaled[x] * 0.30) + (imageScaled[x + 1] * 0.59) + (imageScaled[x + 2] * 0.11)) / 255.0;
   }
 
-  // float* imageFourier = (float*)malloc(outputWidth*outputHeight*sizeof(float));
-  // discreteFourierTransformWrapper2D(imageFourier, imageScaledGray, outputWidth, outputHeight);
-  // fastFourierTransformCPU(imageFourier, imageScaledGray, outputWidth, outputHeight);
-
   float* imageFourier = (float*)malloc(outputWidth*outputHeight*sizeof(float));
-  fastFourierTransformWrapper2D(imageFourier, imageScaledGray, outputWidth, outputHeight);
+  // discreteFourierTransformWrapper2D(imageFourier, imageScaledGray, outputWidth, outputHeight);
+  // recursiveFastFourierTransformWrapperCPU(imageFourier, imageScaledGray, outputWidth, outputHeight);
+  iterativeFastFourierTransformWrapperCPU(imageFourier, imageScaledGray, outputWidth, outputHeight);
+  // fastFourierTransformWrapper2D(imageFourier, imageScaledGray, outputWidth, outputHeight);
 
   unsigned char* imageFourierChanneled = (unsigned char*)malloc(outputWidth*outputHeight*channels*sizeof(unsigned char));
   for (int x = 0; x < outputWidth * outputHeight; x++) {

@@ -17,8 +17,8 @@ void recursiveFastFourierTransform(cuFloatComplex* dst, cuFloatComplex* src, int
 }
 
 extern "C" void fastFourierTransformWrapper2D(float* dst, float* src, int width, int height) {
-  dim3 block(1, 32);
-  dim3 grid(1, (block.y + height - 1) / block.y);
+  dim3 block(32, 32);
+  dim3 grid((block.x + width - 1) / block.x, (block.y + height - 1) / block.y);
 
   cuFloatComplex* h_buffer = (cuFloatComplex*)malloc(width*height*sizeof(cuFloatComplex));
   for (int x = 0; x < width * height; x++) { h_buffer[x] = make_cuFloatComplex(src[x], 0.0); }

@@ -24,7 +24,7 @@ void recursiveFastFourierTransformCPU(std::complex<float>* bufferCombine, std::c
   }
 }
 
-void fastFourierTransformCPU(float* dst, float* src, int width, int height) {
+void recursiveFastFourierTransformWrapperCPU(float* dst, float* src, int width, int height) {
   float* image = (float*)malloc(width*height*sizeof(float));
   float* imageRotated = (float*)malloc(width*height*sizeof(float));
 
@@ -77,4 +77,26 @@ void fastFourierTransformCPU(float* dst, float* src, int width, int height) {
   free(imageBuffer);
   free(imageRotated);
   free(image);
+}
+
+int reverseBits(int value, int size) {
+  int newValue = 0;
+
+  for (int x = 0; x < log2(size); x++) {
+    newValue <<= 1;
+    newValue |= (value & 1);
+    value >>= 1;
+  }
+
+  return newValue;
+}
+
+void iterativeFastFourierTransformCPU(std::complex<float>* dst, std::complex<float>* src, int size) {
+  for (int x = 0; x < size; x++) {
+    printf("%d %d\n", x, reverseBits(x, size));
+  }
+}
+
+void iterativeFastFourierTransformWrapperCPU(float* dst, float* src, int width, int height) {
+
 }

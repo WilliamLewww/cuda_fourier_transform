@@ -1,4 +1,4 @@
-CUDA_PATH=/usr/local/cuda-10.1
+CUDA_PATH=/usr/local/cuda-10.2
 
 CURRENT_PATH=$(shell pwd)
 
