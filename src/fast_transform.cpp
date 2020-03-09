@@ -100,9 +100,10 @@ void iterativeFastFourierTransformCPU(std::complex<float>* dst, std::complex<flo
     int m = pow(2, x);
     int m2 = m / 2;
 
-    std::complex<float> w = std::complex<float>(1, 0);
-    std::complex<float> wm = std::exp(-std::complex<float>(0, 1) * float(M_PI) / float(m2));
     for (int y = 0; y < m2; y++) {
+      std::complex<float> wm = std::exp(-std::complex<float>(0, 1) * float(M_PI) / float(m2));
+      std::complex<float> w = std::complex<float>(1, 0) * pow(wm, y);
+
       for (int z = y; z < size; z += m) {
         std::complex<float> t = w * dst[z + m2];
         std::complex<float> u = dst[z];
@@ -110,8 +111,6 @@ void iterativeFastFourierTransformCPU(std::complex<float>* dst, std::complex<flo
         dst[z] = u + t;
         dst[z + m2] = u - t;
       }
-
-      w *= wm;
     }
   }
 }
