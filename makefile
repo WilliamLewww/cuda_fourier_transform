@@ -27,8 +27,8 @@ all: clean $(EXEC) run
 SRCS := $(wildcard src/*.cpp)
 OBJS := $(SRCS:src/%.cpp=%.o)
 
-CUDA_SRCS := discrete_transform_kernel.cu fast_transform_kernel.cu
-CUDA_OBJS := $(CUDA_SRCS:%.cu=%.o)
+CUDA_SRCS := $(wildcard src/*.cu)
+CUDA_OBJS := $(CUDA_SRCS:src/%.cu=%.o)
 
 $(EXEC): $(OBJS) $(CUDA_OBJS)
 	$(NVCC) $(CUDA_FLAGS) $(BUILD_PATH)/*.o -o $(BIN_PATH)/$(EXEC) $(LINKER_ARGUMENTS)
